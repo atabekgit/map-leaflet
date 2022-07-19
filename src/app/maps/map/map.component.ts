@@ -1,34 +1,73 @@
-import {AfterViewInit, Component, OnInit} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, Inject, Input, OnInit, ViewChild} from '@angular/core';
 import * as L from 'leaflet';
+
+import * as esri from 'esri-leaflet';
+import {MapIconOptions} from "../data/map-icon-option";
+import {INIT_COORDS} from "../token";
 
 @Component({
   selector: 'app-map',
   templateUrl: './map.component.html',
   styleUrls: ['./map.component.css']
 })
-export class MapComponent implements OnInit,AfterViewInit {
-  private map:any;
-  constructor() { }
+export class MapComponent implements OnInit, AfterViewInit {
+  @Input()
+  public markers!: { lat: number, long: number }[];
+  public currentWidth: number;
+  public currentHeight: number;
+  protected baseLayer: any;
+  protected map: any;
+  protected mapLoaded = false;
+
+  @ViewChild('primaryMap', {static: true}) protected mapDivRef!: ElementRef;
+  protected mapDiv!: HTMLDivElement;
+
+
+  constructor(@Inject(INIT_COORDS) protected _initCoords: { lat: number, long: number }) {
+    this.baseLayer = null;
+    this.currentWidth = 1200;
+    this.currentHeight = 600;
+  }
 
   ngOnInit(): void {
+    this.mapDiv = this.mapDivRef.nativeElement;
+    this.__renderMap();
+    this.__showMarkers();
   }
 
   ngAfterViewInit(): void {
-    this.initMap()
+    this.map.invalidateSize();
   }
 
-  private initMap(){
-    this.map = L.map('map', {
-      center: [ 39.8282, -98.5795 ],
-      zoom: 3
+  __showMarkers(): void {
+    const icon = L.icon({
+      iconUrl: MapIconOptions.mapIcon,
+      iconSize: MapIconOptions.iconSize,
+      iconAnchor: MapIconOptions.iconAnchor,
+      shadowSize: MapIconOptions.shadowSize,
+      shadowAnchor: MapIconOptions.shadowAnchor,
     });
-    const tiles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 18,
-      minZoom: 3,
-      attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-    });
-
-    tiles.addTo(this.map);
+    const n: number = this.markers.length;
+    let i: number;
+    let m: L.Marker;
+    let lat: number;
+    let long: number;
+    for (i = 0; i < n; ++i) {
+      lat = this.markers[i].lat;
+      long = this.markers[i].long;
+      m = L.marker([lat, long], {icon: icon}).addTo(this.map);
+      m.bindPopup("ata").openPopup()
+    }
   }
 
+  private __renderMap(): void {
+    this.map = L.map(this.mapDiv, {
+      zoomControl: true,
+      zoomAnimation: true,
+      trackResize: true,
+      boxZoom: true,
+    }).setView([this._initCoords.lat, this._initCoords.long], 15);
+    this.baseLayer = esri.basemapLayer('Streets');
+    this.map.addLayer(this.baseLayer);
+  }
 }
