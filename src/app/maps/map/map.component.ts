@@ -1,6 +1,5 @@
 import {AfterViewInit, Component, ElementRef, Inject, Input, OnInit, ViewChild} from '@angular/core';
 import * as L from 'leaflet';
-
 import * as esri from 'esri-leaflet';
 import {MapIconOptions} from "../data/map-icon-option";
 import {INIT_COORDS} from "../token";
@@ -12,12 +11,11 @@ import {INIT_COORDS} from "../token";
 })
 export class MapComponent implements OnInit, AfterViewInit {
   @Input()
-  public markers!: { lat: number, long: number }[];
+  public markers!: { lat: number[], long: number [] }[];
   public currentWidth: number;
   public currentHeight: number;
   protected baseLayer: any;
   protected map: any;
-  protected mapLoaded = false;
 
   @ViewChild('primaryMap', {static: true}) protected mapDivRef!: ElementRef;
   protected mapDiv!: HTMLDivElement;
@@ -50,13 +48,16 @@ export class MapComponent implements OnInit, AfterViewInit {
     const n: number = this.markers.length;
     let i: number;
     let m: L.Marker;
-    let lat: number;
-    let long: number;
+    let lat: number[];
+    let long: number[];
     for (i = 0; i < n; ++i) {
       lat = this.markers[i].lat;
       long = this.markers[i].long;
-      m = L.marker([lat, long], {icon: icon}).addTo(this.map);
-      m.bindPopup("ata").openPopup()
+      for (let i = 0; i < lat.length; i++) {
+        m = L.marker([lat[i], long[i]], {icon: icon}).addTo(this.map);
+        m.bindPopup("ata").openPopup()
+      }
+
     }
   }
 
@@ -70,4 +71,5 @@ export class MapComponent implements OnInit, AfterViewInit {
     this.baseLayer = esri.basemapLayer('Streets');
     this.map.addLayer(this.baseLayer);
   }
+
 }
