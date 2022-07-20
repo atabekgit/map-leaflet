@@ -11,7 +11,7 @@ import {INIT_COORDS} from "../token";
 })
 export class MapComponent implements OnInit, AfterViewInit {
   @Input()
-  public markers!: { lat: number[], long: number [] }[];
+  public markers!: { lat: number[], long: number[], name: string[], lastName: string[] }[];
   public currentWidth: number;
   public currentHeight: number;
   protected baseLayer: any;
@@ -46,16 +46,18 @@ export class MapComponent implements OnInit, AfterViewInit {
       shadowAnchor: MapIconOptions.shadowAnchor,
     });
     const n: number = this.markers.length;
-    let i: number;
-    let m: L.Marker;
-    let lat: number[];
-    let long: number[];
+    let i: number, m: L.Marker, lat: number[], long: number[], name: string[], lastName: string[];
     for (i = 0; i < n; ++i) {
       lat = this.markers[i].lat;
       long = this.markers[i].long;
+      name = this.markers[i].name;
+      lastName = this.markers[i].lastName;
       for (let i = 0; i < lat.length; i++) {
         m = L.marker([lat[i], long[i]], {icon: icon}).addTo(this.map);
-        m.bindPopup("ata").openPopup()
+        let names = name[i]
+          m.bindPopup(name[i]).openPopup()
+
+
       }
 
     }
