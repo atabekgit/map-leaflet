@@ -99,7 +99,7 @@ export class MapComponent implements OnInit, AfterViewInit {
       trackResize: true,
       boxZoom: true,
     }).setView([this._initCoords.lat, this._initCoords.long], 10);
-    this.baseLayer = esri.basemapLayer('Topographic');
+    this.baseLayer = esri.basemapLayer('Streets');
     this.map.addLayer(this.baseLayer);
   }
 
