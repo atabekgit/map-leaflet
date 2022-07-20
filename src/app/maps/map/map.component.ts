@@ -14,8 +14,12 @@ export class MapComponent implements OnInit, AfterViewInit {
   public markers!: { lat: number[], long: number[], name: string[], lastName: string[] }[];
   public currentWidth: number;
   public currentHeight: number;
-  protected baseLayer: any;
-  protected map: any;
+  baseLayer: any;
+  user: any
+  polyline!: L.Polyline
+  map: any;
+  array: any[] = []
+
 
   @ViewChild('primaryMap', {static: true}) protected mapDivRef!: ElementRef;
   protected mapDiv!: HTMLDivElement;
@@ -31,10 +35,36 @@ export class MapComponent implements OnInit, AfterViewInit {
     this.mapDiv = this.mapDivRef.nativeElement;
     this.__renderMap();
     this.__showMarkers();
+    this.__showPolyline()
   }
 
   ngAfterViewInit(): void {
     this.map.invalidateSize();
+  }
+
+  inArray(lat:any,long:any){
+    let s: any
+    for (s in lat) {
+      let start = lat[s]
+      let end = long[s]
+      this.array.push([start, end])
+    }
+  }
+  __showPolyline() {
+    for (let i = 0; i < this.markers.length; ++i) {
+      let lat: number[], long: number[]
+      lat = this.markers[i].lat
+      long = this.markers[i].long
+      this.inArray(lat,long)
+      console.log(lat)
+    }
+
+    for (let i = 0; i < this.array.length; i++) {
+      this.polyline = new L.Polyline([this.array], {color: 'red'}).addTo(this.map)
+      this.map.fitBounds(this.polyline.getBounds());
+    }
+    console.log(this.array)
+
   }
 
   __showMarkers(): void {
@@ -51,13 +81,12 @@ export class MapComponent implements OnInit, AfterViewInit {
       lat = this.markers[i].lat;
       long = this.markers[i].long;
       name = this.markers[i].name;
+
       lastName = this.markers[i].lastName;
       for (let i = 0; i < lat.length; i++) {
         m = L.marker([lat[i], long[i]], {icon: icon}).addTo(this.map);
-        let names = name[i]
-          m.bindPopup(name[i]).openPopup()
-
-
+        m.bindPopup(name[i] + " " + lastName[i]).openPopup()
+        console.log(lat[i],)
       }
 
     }
@@ -69,8 +98,8 @@ export class MapComponent implements OnInit, AfterViewInit {
       zoomAnimation: true,
       trackResize: true,
       boxZoom: true,
-    }).setView([this._initCoords.lat, this._initCoords.long], 15);
-    this.baseLayer = esri.basemapLayer('Streets');
+    }).setView([this._initCoords.lat, this._initCoords.long], 10);
+    this.baseLayer = esri.basemapLayer('Topographic');
     this.map.addLayer(this.baseLayer);
   }
 
