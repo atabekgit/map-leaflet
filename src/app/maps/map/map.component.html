@@ -1,6 +1,6 @@
-
-<div class="map-container">
-  <div class="map-frame">
-    <div id="map"></div>
+<div>
+  <div id="map-container"style="justify-content: center;display: flex;align-items: center;margin-top: 50px">
+    <div #primaryMap [style.height.px]="currentHeight" [style.width.px]="currentWidth"></div>
+    <app-map-control class="map-control"></app-map-control>
   </div>
 </div>
